@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Веб-нотатник</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #fff9c4, #fff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .header {
+            width: 100%;
+            
+            padding: 15px;
+            display: none;
+            justify-content: flex-end;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            font-size: 24px;
+            padding: 5px;
+            margin-right: 40px;
+        }
+
+        .menu {
+            display: none;
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu.active {
+            display: block;
+        }
+
+        .auth-container, .container, .note-editor {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        input, textarea {
+            width: 80%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #fbc02d;
+            border-radius: 5px;
+            background: #fffde7;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            background: #fbc02d;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #f9a825;
+        }
+
+        .add-note {
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #fbc02d;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        #notesList {
+    display: flex;
+    flex-wrap: wrap; /* Щоб нотатки розташовувалися в кілька рядів */
+    gap: 15px;
+    padding: 20px;
+    justify-content: center; /* Щоб вони були по центру */
+}
+
+.note {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 300px; /* Ширина кожної нотатки */
+    position: relative;
+}
+
+.note-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.share-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.note-content {
+    font-size: 14px;
+    color: #333;
+    width: 100%;
+}
+
+.note-date {
+    font-size: 12px;
+    color: gray;
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+}
+.note-editor {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw; /* 80% ширини екрану */
+    height: 80vh; /* 80% висоти екрану */
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+#noteTitle {
+    flex-grow: 1;
+    font-size: 20px;
+    padding: 10px;
+    border: 1px solid #fbc02d;
+    border-radius: 5px;
+}
+
+.share-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #4CAF50; /* Зелена стрілочка */
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 10px;
+}
+
+.share-btn:hover {
+    color: #388E3C;
+}
+
+#noteContent {
+    flex-grow: 1;
+    font-size: 16px;
+    padding: 10px;
+    border: 1px solid #fbc02d;
+    border-radius: 5px;
+    resize: none;
+}
+.delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: red;
+    font-size: 18px;
+    cursor: pointer;
+}
+#noteContent {
+    flex-grow: 1;
+    font-size: 16px;
+    padding: 10px;
+    border: 1px solid #fbc02d;
+    border-radius: 5px;
+    resize: none;
+}
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="menu-icon" onclick="toggleMenu()">☰</span>
+    </div>
+    <div class="menu" id="menu">
+        <p><strong id="userProfile"></strong></p>
+        <button onclick="logout()">Вийти</button>
+    </div>
+
+    <div class="auth-container" id="authPage">
+        <h2>Вхід</h2>
+        <input type="text" id="username" placeholder="Ім'я користувача">
+        <input type="password" id="password" placeholder="Пароль">
+        <button onclick="signUp()">Зареєструватися</button>
+    </div>
+    
+    <div id="notesPage" style="display: none;">
+        <div id="notesList"></div>
+        <button class="add-note" onclick="createNote()">+</button>
+    </div>
+
+    <div class="note-editor" id="noteEditor" style="display: none;">
+        <div class="note-header">
+            <input type="text" id="noteTitle" placeholder="Заголовок">
+            <button class="share-btn" onclick="shareNote()">📤</button>
+        </div>
+        <textarea id="noteContent" placeholder="Введіть свою нотатку..."></textarea>
+        <div class="buttons">
+            <button onclick="saveNote()">Зберегти</button>
+        </div>
+    </div>
+    <script>
+        function toggleMenu() {
+            document.getElementById("menu").classList.toggle("active");
+        }
+
+        function signUp() {
+            const username = document.getElementById("username").value;
+            if (username.trim() === "") return;
+            localStorage.setItem("username", username);
+            document.getElementById("userProfile").innerText = username;
+            document.getElementById("authPage").style.display = "none";
+            document.getElementById("notesPage").style.display = "block";
+            document.querySelector(".header").style.display = "flex"; // Показати хедер
+        }
+
+        function createNote() {
+            document.getElementById("notesPage").style.display = "none";
+            document.getElementById("noteEditor").style.display = "block";
+        }
+
+        function saveNote() {
+            const title = document.getElementById("noteTitle").value;
+            const content = document.getElementById("noteContent").value;
+            const date = new Date().toLocaleString();
+            if (title.trim() === "" || content.trim() === "") return;
+            let notes = JSON.parse(localStorage.getItem("notes")) || [];
+            notes.push({ title, content, date });
+            localStorage.setItem("notes", JSON.stringify(notes));
+            document.getElementById("noteEditor").style.display = "none";
+            document.getElementById("notesPage").style.display = "block";
+            loadNotes();
+        }
+
+        function logout() {
+            localStorage.removeItem("username");
+            document.getElementById("authPage").style.display = "block";
+            document.getElementById("notesPage").style.display = "none";
+            document.querySelector(".header").style.display = "none";
+
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let username = localStorage.getItem("username");
+            if (username) {
+                document.getElementById("userProfile").innerText = username;
+                document.getElementById("authPage").style.display = "none";
+                document.getElementById("notesPage").style.display = "block";
+                document.querySelector(".header").style.display = "flex";
+                loadNotes();
+            }
+        });
+        function loadNotes() {
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+    let notesList = document.getElementById("notesList");
+    notesList.innerHTML = ""; // Очищаємо список перед оновленням
+
+    notes.forEach((note, index) => {
+        let noteElement = document.createElement("div");
+        noteElement.classList.add("note");
+
+        noteElement.innerHTML = `
+            <button class="delete-btn" onclick="deleteNote(${index})">×</button>
+            <div class="note-title">${note.title}</div>
+            <div class="note-content">${note.content}</div>
+            <div class="note-date">${note.date}</div>
+        `;
+
+        notesList.appendChild(noteElement);
+    });
+}
+function deleteNote(index) {
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+    notes.splice(index, 1);
+    localStorage.setItem("notes", JSON.stringify(notes));
+    loadNotes();
+}
+function shareNote(title, content) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            text: content,
+        }).catch(error => console.log("Помилка при шарінгу:", error));
+    } else {
+        alert("Ваш браузер не підтримує спільний доступ до нотаток.");
+    }
+}
+
+
+    </script>
+</body>
+</html>
